@@ -1,4 +1,4 @@
-Coleta de Dados do ThingSpeak (Temperatura & Umidade)
+<h1>Coleta de Dados do ThingSpeak (Temperatura & Umidade)</h1>
 
 Esse projeto é um exemplo simples em Python para coletar dados de Temperatura e Umidade de um canal no ThingSpeak
 . O script faz uma requisição à API do ThingSpeak para pegar os últimos dados disponíveis e exibe as informações no console, junto com a data e hora da coleta.
