@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Gráfico Interativo - Chart.js</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f9;
+            padding: 20px;
+            text-align: center;
+        }
+        .chart-container {
+            width: 95vw;
+            max-width: 1400px;
+            height: 70vh;
+            max-height: 800px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+    </style>
+</head>
+<body>
+    <h2>Monitoramento - Temperatura e Umidade</h2>
+
+    <!-- gráfico interativo -->
+    <div class="chart-container">
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <!-- Dados do servidor -->
+    <script type="application/json" id="chart-data">
+    {
+        "labels": {{ labels|tojson|safe }},
+        "temperaturas": {{ temperaturas|tojson|safe }},
+        "umidades": {{ umidades|tojson|safe }}
+    }
+    </script>
+
+    <script>
+        const ctx = document.getElementById('myChart').getContext('2d');
+        
+        // Carrega os dados do JSON
+        const chartData = JSON.parse(document.getElementById('chart-data').textContent);
+
+        const data = {
+            labels: chartData.labels,
+            datasets: [
+                {
+                    label: 'Temperatura (°C)',
+                    data: chartData.temperaturas,
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    yAxisID: 'y',
+                    tension: 0.3
+                },
+                {
+                    label: 'Umidade (%)',
+                    data: chartData.umidades,
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    yAxisID: 'y1',
+                    tension: 0.3
+                }
+            ]
+        };
+
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                resizeDelay: 0,
+                interaction: { mode: 'index', intersect: false },
+                stacked: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Dados em tempo real (ThingSpeak)',
+                        font: { size: 16 }
+                    },
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Data e Hora'
+                        },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45,
+                            callback: function(value, index, values) {
+                                const date = new Date(chartData.labels[index]);
+                                return date.toLocaleString('pt-BR', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                });
+                            }
+                        }
+                    },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { 
+                            display: true, 
+                            text: 'Temperatura (°C)',
+                            font: { size: 14 }
+                        },
+                        grid: {
+                            color: 'rgba(255, 99, 132, 0.1)'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        grid: { 
+                            drawOnChartArea: false,
+                            color: 'rgba(54, 162, 235, 0.1)'
+                        },
+                        title: { 
+                            display: true, 
+                            text: 'Umidade (%)',
+                            font: { size: 14 }
+                        }
+                    }
+                }
+            },
+        });
+
+        // Redimensionar o gráfico quando a janela for redimensionada
+        window.addEventListener('resize', function() {
+            chart.resize();
+        });
+    </script>
+</body>
+</html>
